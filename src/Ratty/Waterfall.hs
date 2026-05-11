@@ -7,6 +7,7 @@ import Data.List (intercalate)
 import Data.IORef
 import System.Console.ANSI
 import Control.Monad (forM_) 
+import System.Environment (getEnv)
 
 apcCommand :: String -> String-> String -> [(String, String)] -> String
 apcCommand namespace thingy verb keyvalues = 
@@ -49,7 +50,8 @@ instance Show W.Solid where
     show s = unsafePerformIO $ do
         ident <- show <$> randomRIO (0 :: Int, 10^(6::Int))
         let filename = ident <> ".glb"
-        let path = "/home/joseph/.cargo/bin/assets/objects/" <> filename
+        home <- getEnv "HOME"
+        let path = home <> "/.cargo/bin/assets/objects/" <> filename
         W.writeGLB 0.01 path (scale s)
         oldIdent <- readIORef lastIDRef
         writeIORef lastIDRef (Just ident)
