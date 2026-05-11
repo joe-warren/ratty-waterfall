@@ -6,6 +6,7 @@ import System.Random (randomRIO)
 import Data.List (intercalate)
 import Data.IORef
 import System.Console.ANSI
+import Control.Monad (forM_) 
 
 apcCommand :: String -> String-> String -> [(String, String)] -> String
 apcCommand namespace thingy verb keyvalues = 
@@ -34,6 +35,16 @@ scale s =
             let biggestDim = max (abs (minimum lo)) (maximum hi)
             in W.uScale (0.25 / biggestDim) s
 
+
+-- because of the way ratty tracks the position of objects
+-- rather than printing newlines, print n random numbers in black
+printNewLines :: Int -> IO ()
+printNewLines i = do
+    setSGR [SetColor Foreground Dull Black]
+    forM_ [0..i] $ const $ do
+        val <- show <$> randomRIO (0 :: Int, 10^(6::Int))
+        putStrLn val
+    setSGR [Reset]
 instance Show W.Solid where
     show s = unsafePerformIO $ do
         ident <- show <$> randomRIO (0 :: Int, 10^(6::Int))
@@ -43,7 +54,7 @@ instance Show W.Solid where
         oldIdent <- readIORef lastIDRef
         writeIORef lastIDRef (Just ident)
         -- createSpace
-        putStr (replicate vLines '\n')
+        printNewLines vLines
         putStr (cursorUpLineCode vLines)
         curPos <- getCursorPosition
         let curPosY = maybe 10 fst $ curPos
@@ -64,8 +75,6 @@ instance Show W.Solid where
                     , ("h", "10")
                     , ("animate", "1")
                     ]
-        let deletePrev' oldIdent = rattyCommand "d" [("id", oldIdent)]
+        let deletePrev' oldIdent' = rattyCommand "d" [("id", oldIdent')]
             deletePrev = foldMap deletePrev' oldIdent
         return $ register <> draw -- <> deletePrev
-        -- return $ "\x1B_ratty;g;r;id=44;fmt=glb;path=file.glb\x1B\\" <> 
-        --    "\x1B_ratty;g;p;id=44;row=10;col=10;w=10;h=10;animate=1\x1B\\"
