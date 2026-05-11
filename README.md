@@ -4,4 +4,6 @@ This is an experiment in making [Waterfall-CAD](https://hackage.haskell.org/pack
 
 This was thrown together in an evening, and it's a little janky at present. 
 
-I won't personally reconmend it.
+I won't personally recommend it.
+
+[Watch a quick demo video here](https://youtu.be/zfmplHOqAEw)
